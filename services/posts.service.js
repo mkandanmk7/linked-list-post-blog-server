@@ -27,12 +27,13 @@ const service = {
                 console.log("in not equal 0")
                 const lastPostId = lastPost.postId; // last or prev post ID;
                 let newPostId = genNanoId();
-                allData.postId = newPostId;
+
                 const postData = req.body;
                 const nextPost = {
-                    postData,
+                    ...postData,
                     postId: newPostId,
                     next: null,
+                    createdAt: createdDate,
                     prev: lastPostId
 
                 }
@@ -73,14 +74,61 @@ const service = {
 
     //get post by id;
 
+    async getAllPosts(req, res) {
+        try {
+            const allPosts = await db.posts.find().toArray();
+            return res.status(200).send(allPosts);
+        } catch (error) {
+            console.log(error.message)
+            return res.status(400).send({ Error: error.message })
+        }
+    },
+
     async getSinglePost(req, res) {
         try {
             console.log("in get post")
             const postId = req.params.id; // id get from url parms ;
-            const post = await db.posts.findOne({ _id: ObjectId(postId) }); // get post from db;
+            const post = await db.posts.findOne({ postId: postId }); // get post from db;
 
             res.status(200).send(post);
         } catch (error) {
+            console.log('error', error.message);;
+            res.status(404).send({ Error: error.message })
+        }
+    },
+
+    // delete post depend on id;
+    async deletePost(req, res) {
+        try {
+            const postId = req.params.id;
+            const post = await db.posts.findOne({ postId: postId });
+            const prevPostId = post.prev;
+            const nextPostId = post.next;
+
+            await db.posts.delete({ postId: postId });// selected post deleted;
+            if (prevPostId !== null) {
+
+                const prevPostDetails = await db.posts.findOne({ postId: prevPostId });
+                console.log("prevPost:", prevPostDetails);
+
+                const updatedPrevPost = {
+                    ...prevPostDetails,
+                    next: nextPostId,
+                }
+
+                await db.posts.findOneAndUpdate({ postId: prevPostId }, { $set: updatedPrevPost }, { ReturnDocument: "after" })
+            }
+            else if (nextPostId !== null) {
+                const nextPostDetails = await db.posts.findOne({ postId: nextPostId });
+                console.log("nextPost Details:", nextPostDetails);
+                const updatedNextPost = {
+                    ...nextPostDetails,
+                    prev: prevPostId,
+                }
+                await db.posts.findOneAndUpdate({ postId: nextPostId }, { $set: updatedNextPost }, { ReturnDocument: "after" })
+            }
+            return res.status(200).send("deleted successfully")
+        } catch (err) {
             console.log('error', error.message);;
             res.status(404).send({ Error: error.message })
         }
