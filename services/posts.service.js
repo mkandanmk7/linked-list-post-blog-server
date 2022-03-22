@@ -31,7 +31,7 @@ const service = {
                 const postData = req.body;
                 const nextPost = {
                     postData,
-                    newPostId,
+                    postId: newPostId,
                     next: null,
                     prev: lastPostId
 
