@@ -76,7 +76,10 @@ const service = {
 
     async getAllPosts(req, res) {
         try {
+            console.log("in get all posts");
+
             const allPosts = await db.posts.find().toArray();
+            // console.log("all:", allPosts)
             return res.status(200).send(allPosts);
         } catch (error) {
             console.log(error.message)
@@ -109,7 +112,7 @@ const service = {
             if (prevPostId !== null) {
 
                 const prevPostDetails = await db.posts.findOne({ postId: prevPostId });
-                console.log("prevPost:", prevPostDetails);
+                console.log("prevPost:", prevPostDetails.data);
 
                 const updatedPrevPost = {
                     ...prevPostDetails,
