@@ -19,11 +19,6 @@ const POST_ROUTES = require("./routes/posts.routes");
 
         //middleware to get server status
         app.get("/", (req, res) => {
-            res.status(200).send("server is running successfully");
-        });
-
-        //middle wares
-        app.get("/", (req, res) => {
             res.status(200).send("<h3>Server is running successfully</h3>")
         })
 
