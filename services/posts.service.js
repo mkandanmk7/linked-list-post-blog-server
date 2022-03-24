@@ -108,12 +108,11 @@ const service = {
             //get delete post details; we can get deleted post prev and next id's;
             const post = await db.posts.findOne({ postId: postId });
             console.log('post', post)
-            const prevPostId = post.prev;
-            const nextPostId = post.next;
+            const prevPostId = post.prev;  // prev postid
+            const nextPostId = post.next;  //next postid
 
-            await db.posts.deleteOne({ postId: postId });// selected post deleted;
             console.log("deleted")
-            if (prevPostId !== null) {
+            if (prevPostId !== null || nextPostId !== null) {
                 console.log("in prev post null")
                 //prev post next id updation
                 const prevPostDetails = await db.posts.findOne({ postId: prevPostId });
@@ -148,6 +147,7 @@ const service = {
             //     await db.posts.findOneAndUpdate({ postId: nextPostId }, { $set: updatedNextPost }, { ReturnDocument: "after" })
             // }
             else if (nextPostId === null) {
+                //prevPost"s next null updation;
                 const prevPostDetails = await db.posts.findOne({ postId: prevPostId });
                 console.log("prevPost:", prevPostDetails);
 
@@ -171,6 +171,7 @@ const service = {
                 await db.posts.findOneAndUpdate({ postId: nextPostId }, { $set: updatedNextPost }, { ReturnDocument: "after" })
 
             }
+            await db.posts.deleteOne({ postId: postId });// selected post deleted;
             return res.status(200).send("deleted successfully")
         } catch (error) {
             console.log('error', error.message);;
