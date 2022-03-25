@@ -72,6 +72,55 @@ const service = {
 
     },
 
+    async insertPost(req, res) {
+        try {
+            const allPosts = await db.posts.find().toArray();
+            const length = allPosts.length;
+            const insertPosition = req.body.position;
+            const prevPostPosition = insertPosition - 1; // get prev post index
+            const nextPostPosition = insertPosition // get next post index;
+            const prevPostDetails = allPosts[prevPostPosition];
+            const nextPostDetails = allPosts[nextPostPosition];
+            console.log("prevPost:", prevPostDetails);
+            console.log("next Post:", nextPostDetails);
+            const postId = genNanoId();
+            const createdDate = Math.floor(new Date().getTime() / 1000.0);
+
+            //new post details obj;
+            const newPost = {
+                ...req.body,
+                postId,
+                createdAt: createdDate,
+                next: nextPostDetails.postId,
+                prev: prevPostDetails.postId
+            }
+
+            //insert new post at specified position: 
+            await db.posts.insertOne(newPost);
+
+            //updated prevPost details obj;
+            const updatedPrevPost = {
+                ...prevPostDetails,
+                next: postId
+            }
+            await db.posts.findOneAndUpdate({ postId: prevPostDetails.postId }, { $set: updatedPrevPost }, { ReturnDocument: "after" });
+
+            //updated next post details obj;
+            const updatedNextPost = {
+                ...nextPostDetails,
+                prev: postId,
+            }
+            await db.posts.findOneAndUpdate({ postId: nextPostDetails.postId }, { $set: updatedNextPost }, { ReturnDocument: "after" });
+
+
+            return res.status(200).send("inserted successfully at specified position")
+        } catch (error) {
+            console.log('error', error.message);;
+            return res.status(404).send({ Error: error.message })
+        }
+    },
+
+
     //get post by id;
 
     async getAllPosts(req, res) {
