@@ -4,7 +4,7 @@ const service = require('../services/posts.service');
 const ROUTER = require('express').Router();
 
 ROUTER.post("/", service.createPost);
-ROUTER.post("/insert", service.insertPost);
+ROUTER.post("/insert/:position", service.insertPost);
 ROUTER.get("/allposts", service.getAllPosts);
 ROUTER.delete("/:id", service.deletePost)
 ROUTER.get("/:id", service.getSinglePost);
