@@ -76,7 +76,7 @@ const service = {
         try {
             const allPosts = await db.posts.find().toArray();
             const length = allPosts.length;
-            const insertPosition = req.params.position;
+            const insertPosition = req.body.position - 1;
             console.log('insertPosition', insertPosition)
             const prevPostPosition = insertPosition - 1; // get prev post index
             const nextPostPosition = insertPosition // get next post index;
